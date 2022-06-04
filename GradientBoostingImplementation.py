@@ -331,6 +331,49 @@ class DecisionTree():
         mae = np.mean(np.abs(y_true - y_pred))
         return mae
 
+    def calc_var_imp(self, root, tot_samples, reduction):
+        """
+        Summary: 
+        Traverse a tree and sum up the weighted criterion reduction
+
+        Args: 
+            root: a DecisionTree object
+            tot_samples: total number of samples at root in the training data set
+            reduction: dictionary to store the weighted criterion reductions for each feature 
+
+        Returns:
+            no explicit return but updates the reductions dictionary 
+        """
+
+        if root:
+
+            # calculate weighted reduction
+            if root.feature_i is not None:
+                
+                # calculate information about the current node and the two child nodes
+                N_t = root.n_samples
+                impurity = root.criterion_total
+                N_t_R = root.right_branch.n_samples
+                right_impurity = root.right_branch.criterion_total      
+                N_t_L = root.left_branch.n_samples
+                left_impurity = root.left_branch.criterion_total
+
+                # compute impurity reduction at current node
+                cur_red = N_t / tot_samples * (impurity - N_t_R / N_t * right_impurity - N_t_L / N_t * left_impurity)
+
+            # take the value out of the list
+            if isinstance(cur_red, list):
+                cur_red = cur_red[0]
+
+            # add the weighted reductions up 
+            self.red[root.feature_i] += cur_red
+
+            # Recur on left child
+            self.calc_var_imp(root.left_branch, tot_samples, reduction)
+    
+            # Recur on right child
+            self.calc_var_imp(root.right_branch, tot_samples, reduction)
+
 class RegressionTree(DecisionTree):
     """
   Summary:
