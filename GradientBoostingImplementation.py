@@ -366,7 +366,7 @@ class DecisionTree():
                 cur_red = cur_red[0]
 
             # add the weighted reductions up 
-            self.red[root.feature_i] += cur_red
+            reduction[root.feature_i] += cur_red
 
             # Recur on left child
             self.calc_var_imp(root.left_branch, tot_samples, reduction)
