@@ -93,9 +93,9 @@ class Helper():
 
 class DecisionTree():
     """
-  Summary:
-  Class containing all functions for implementing a decision tree 
-  """
+    Summary:
+    Class containing all functions for implementing a decision tree 
+    """
 
     def __init__(self, max_depth, min_samples, loss_threshold, min_impurity, loss = 'l2'):
         # 0 - constant model, 1 - one split, ...
