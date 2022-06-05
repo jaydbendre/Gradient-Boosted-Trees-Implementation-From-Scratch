@@ -97,7 +97,7 @@ class DecisionTree():
     Class containing all functions for implementing a decision tree 
     """
 
-    def __init__(self, max_depth, min_samples, loss_threshold, min_impurity, loss = 'l2'):
+    def __init__(self, max_depth=float("inf"), min_samples=2, loss_threshold=0.001, min_impurity=1e-7, loss = 'l2'):
         # 0 - constant model, 1 - one split, ...
         self.max_depth = max_depth 
         # eg. l2 for sum of squares any differentiable loss works
@@ -331,48 +331,6 @@ class DecisionTree():
         mae = np.mean(np.abs(y_true - y_pred))
         return mae
 
-    def calc_var_imp(self, root, tot_samples, reduction):
-        """
-        Summary: 
-        Traverse a tree and sum up the weighted criterion reduction
-
-        Args: 
-            root: a DecisionTree object
-            tot_samples: total number of samples at root in the training data set
-            reduction: dictionary to store the weighted criterion reductions for each feature 
-
-        Returns:
-            no explicit return but updates the reductions dictionary 
-        """
-
-        if root:
-
-            # calculate weighted reduction
-            if root.feature_i is not None:
-                
-                # calculate information about the current node and the two child nodes
-                N_t = root.n_samples
-                impurity = root.criterion_total
-                N_t_R = root.right_branch.n_samples
-                right_impurity = root.right_branch.criterion_total      
-                N_t_L = root.left_branch.n_samples
-                left_impurity = root.left_branch.criterion_total
-
-                # compute impurity reduction at current node
-                cur_red = N_t / tot_samples * (impurity - N_t_R / N_t * right_impurity - N_t_L / N_t * left_impurity)
-
-            # take the value out of the list
-            if isinstance(cur_red, list):
-                cur_red = cur_red[0]
-
-            # add the weighted reductions up 
-            reduction[root.feature_i] += cur_red
-
-            # Recur on left child
-            self.calc_var_imp(root.left_branch, tot_samples, reduction)
-    
-            # Recur on right child
-            self.calc_var_imp(root.right_branch, tot_samples, reduction)
 
 class RegressionTree(DecisionTree):
     """
@@ -448,6 +406,91 @@ class RegressionTree(DecisionTree):
 
         # Calling fit function in the Decisiontree Class
         super(RegressionTree, self).fit(X, y)
+    
+
+    def calc_var_imp(self, tot_samples, reduction):
+        """
+        Summary: 
+       Check Traverse a tree and sum up the weighted criterion reduction
+
+        Args: 
+            root: a DecisionTree object/tree
+            tot_samples: total number of samples at root in the training data set
+            reduction: dictionary to store the weighted criterion reductions for each feature 
+
+        Returns:
+            no explicit return but updates the reductions dictionary 
+        """
+
+        if self.root:
+
+            # calculate weighted reduction
+            if self.root.feature_i is not None:
+                
+                # calculate information about the current node and the two child nodes
+                N_t = self.root.n_samples
+                impurity = self.root.criterion_total
+                N_t_R = self.root.right_branch.n_samples
+                right_impurity = self.root.right_branch.criterion_total      
+                N_t_L = self.root.left_branch.n_samples
+                left_impurity = self.root.left_branch.criterion_total
+
+                # compute impurity reduction at current node
+                cur_red = N_t / tot_samples * (impurity - N_t_R / N_t * right_impurity - N_t_L / N_t * left_impurity)
+
+            # take the value out of the list
+            if isinstance(cur_red, list):
+                cur_red = cur_red[0]
+
+            # add the weighted reductions up 
+            reduction[self.root.feature_i] += cur_red
+
+            # Recur on left child
+            self.calc_var_imp(self.root.left_branch, tot_samples, reduction)
+    
+            # Recur on right child
+            self.calc_var_imp(self.root.right_branch, tot_samples, reduction)
+    
+    def get_variable_importance(self, root, X, normalize=True):
+        """
+        Function to calculate variable importance based on weighted reduction in criterion 
+    
+        Parameters:
+        -----------
+        root: RegressionTree
+            Any regression tree 
+        X: np.
+        normalize: bool 
+            Flag to normalize output (default = True)
+        
+        Output:
+        -------
+        importance: array
+            Array of arrays with weighted criterion reductions summed by feature. These are in order of the variable 
+        """
+        
+        # initialize importance/output vector
+        importance = {}
+
+        # add placeholders for all columns of X
+        for i in range(X.shape[1]):
+            importance[i] = 0
+
+        # calc the total number of samples at root 
+        tot_samples = root.n_samples
+
+        # sum up weighted reductions 
+        self.calc_var_imp(root, tot_samples, importance)
+
+        # grab the values from dictionary
+        importance2 = list(importance.values()) 
+        
+        # normalize if asked 
+        if normalize:
+            importance2 /= sum(importance2)
+        
+        # return result
+        return(importance2)
         
 
 class Loss(object):
@@ -628,7 +671,7 @@ PERFORMANCE COMPARISION STUDY
 #############################################
 """
 
-# Seeing the effect of different parameters on the performance of the model
+""" # Seeing the effect of different parameters on the performance of the model
 
 # Initializing the dataset
 diabetes = load_diabetes()
@@ -704,4 +747,4 @@ plt.xlabel( "Number of trees",size=16)
 plt.ylabel("MSE", size=16)
 plt.title("Reduction in the MSE with increase in number of trees", size = 18)
 plt.tight_layout()
-plt.legend(["Implementation", "SkLearn"])
+plt.legend(["Implementation", "SkLearn"]) """
