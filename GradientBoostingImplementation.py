@@ -566,11 +566,13 @@ class TreeViz():
     """
     Tree visulalization methods
     """
+    
+    def __init__(self): pass
 
-    def calc_var_imp(self, tot_samples, reduction):
+    def calc_var_imp(self, root, tot_samples, reduction):
         """
         Summary: 
-       Check Traverse a tree and sum up the weighted criterion reduction
+        Check Traverse a tree and sum up the weighted criterion reduction
 
         Args: 
             root: a DecisionTree object/tree
@@ -581,18 +583,18 @@ class TreeViz():
             no explicit return but updates the reductions dictionary 
         """
 
-        if self.root:
+        if root:
 
             # calculate weighted reduction
-            if self.root.feature_i is not None:
+            if root.feature_i is not None:
                 
                 # calculate information about the current node and the two child nodes
-                N_t = self.root.n_samples
-                impurity = self.root.criterion_total
-                N_t_R = self.root.right_branch.n_samples
-                right_impurity = self.root.right_branch.criterion_total      
-                N_t_L = self.root.left_branch.n_samples
-                left_impurity = self.root.left_branch.criterion_total
+                N_t = root.n_samples
+                impurity = root.criterion_total
+                N_t_R = root.right_branch.n_samples
+                right_impurity = root.right_branch.criterion_total      
+                N_t_L = root.left_branch.n_samples
+                left_impurity = root.left_branch.criterion_total
 
                 # compute impurity reduction at current node
                 cur_red = N_t / tot_samples * (impurity - N_t_R / N_t * right_impurity - N_t_L / N_t * left_impurity)
@@ -602,13 +604,13 @@ class TreeViz():
                 cur_red = cur_red[0]
 
             # add the weighted reductions up 
-            reduction[self.root.feature_i] += cur_red
+            reduction[root.feature_i] += cur_red
 
             # Recur on left child
-            self.calc_var_imp(self.root.left_branch, tot_samples, reduction)
+            self.calc_var_imp(root.left_branch, tot_samples, reduction)
     
             # Recur on right child
-            self.calc_var_imp(self.root.right_branch, tot_samples, reduction)
+            self.calc_var_imp(root.right_branch, tot_samples, reduction)
     
     def get_variable_importance(self, root, X, normalize=True):
         """
@@ -618,7 +620,8 @@ class TreeViz():
         -----------
         root: RegressionTree
             Any regression tree 
-        X: np.
+        X: np.array 
+            Training data in (# samples, # features) shape
         normalize: bool 
             Flag to normalize output (default = True)
         
