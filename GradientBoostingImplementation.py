@@ -560,7 +560,13 @@ class GradientBoostingRegressor(GradientBoosting):
             min_samples_split=min_samples_split, 
             min_impurity=min_var_red,
             max_depth=max_depth)
+    
+    def _get_feature_importance(self, X):
+        importances = []
+        for tree in self.trees:
+            importances.append(TreeViz().get_variable_importance(tree.root, X))
         
+        return importances
 
 class TreeViz():
     """
@@ -604,13 +610,12 @@ class TreeViz():
             #    cur_red = cur_red[0]
 
             # add the weighted reductions up 
-            reduction[root.feature_i] += cur_red
+                reduction[root.feature_i] += cur_red
 
             # Recur on left child
-            self.calc_var_imp(self, root.left_branch, tot_samples, reduction)
-    
+            self.calc_var_imp( root.left_branch, tot_samples, reduction)
             # Recur on right child
-            self.calc_var_imp(self, root.right_branch, tot_samples, reduction)
+            self.calc_var_imp( root.right_branch, tot_samples, reduction)
     
     def get_variable_importance(self, root, X, normalize=True):
         """
@@ -642,7 +647,7 @@ class TreeViz():
         tot_samples = root.n_samples
 
         # sum up weighted reductions 
-        self.calc_var_imp(self, root=root, tot_samples=tot_samples, reduction=importance)
+        self.calc_var_imp(root, tot_samples, importance)
 
         # grab the values from dictionary
         importance2 = list(importance.values()) 
