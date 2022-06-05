@@ -605,9 +605,10 @@ class TreeViz():
                 # compute impurity reduction at current node
                 cur_red = N_t / tot_samples * (impurity - N_t_R / N_t * right_impurity - N_t_L / N_t * left_impurity)
 
-            # take the value out of the list
-            #if isinstance(cur_red, list):
-            #    cur_red = cur_red[0]
+                #print(cur_red, root.feature_i)
+
+                # add the weighted reductions up 
+                reduction[root.feature_i] += cur_red
 
             # add the weighted reductions up 
                 reduction[root.feature_i] += cur_red
