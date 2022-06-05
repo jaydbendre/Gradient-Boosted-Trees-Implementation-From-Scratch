@@ -564,7 +564,7 @@ class GradientBoostingRegressor(GradientBoosting):
 
 class TreeViz():
     """
-    Tree visulalization methods
+    Tree visualization methods
     """
     
     def __init__(self): pass
