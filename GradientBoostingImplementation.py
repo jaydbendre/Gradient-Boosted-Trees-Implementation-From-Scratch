@@ -599,18 +599,18 @@ class TreeViz():
                 # compute impurity reduction at current node
                 cur_red = N_t / tot_samples * (impurity - N_t_R / N_t * right_impurity - N_t_L / N_t * left_impurity)
 
-            # take the value out of the list
-            #if isinstance(cur_red, list):
-            #    cur_red = cur_red[0]
+                #print(cur_red, root.feature_i)
 
-            # add the weighted reductions up 
-            reduction[root.feature_i] += cur_red
+                # add the weighted reductions up 
+                reduction[root.feature_i] += cur_red
+
+            # take the value out of the list
 
             # Recur on left child
-            self.calc_var_imp(self, root.left_branch, tot_samples, reduction)
+            self.calc_var_imp(root.left_branch, tot_samples, reduction)
     
             # Recur on right child
-            self.calc_var_imp(self, root.right_branch, tot_samples, reduction)
+            self.calc_var_imp(root.right_branch, tot_samples, reduction)
     
     def get_variable_importance(self, root, X, normalize=True):
         """
@@ -642,7 +642,7 @@ class TreeViz():
         tot_samples = root.n_samples
 
         # sum up weighted reductions 
-        self.calc_var_imp(self, root=root, tot_samples=tot_samples, reduction=importance)
+        self.calc_var_imp(root, tot_samples, importance)
 
         # grab the values from dictionary
         importance2 = list(importance.values()) 
