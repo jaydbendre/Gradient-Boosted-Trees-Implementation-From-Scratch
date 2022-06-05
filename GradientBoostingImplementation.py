@@ -600,8 +600,8 @@ class TreeViz():
                 cur_red = N_t / tot_samples * (impurity - N_t_R / N_t * right_impurity - N_t_L / N_t * left_impurity)
 
             # take the value out of the list
-            if isinstance(cur_red, list):
-                cur_red = cur_red[0]
+            #if isinstance(cur_red, list):
+            #    cur_red = cur_red[0]
 
             # add the weighted reductions up 
             reduction[root.feature_i] += cur_red
