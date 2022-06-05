@@ -406,93 +406,7 @@ class RegressionTree(DecisionTree):
 
         # Calling fit function in the Decisiontree Class
         super(RegressionTree, self).fit(X, y)
-    
-
-    def calc_var_imp(self, tot_samples, reduction):
-        """
-        Summary: 
-       Check Traverse a tree and sum up the weighted criterion reduction
-
-        Args: 
-            root: a DecisionTree object/tree
-            tot_samples: total number of samples at root in the training data set
-            reduction: dictionary to store the weighted criterion reductions for each feature 
-
-        Returns:
-            no explicit return but updates the reductions dictionary 
-        """
-
-        if self.root:
-
-            # calculate weighted reduction
-            if self.root.feature_i is not None:
-                
-                # calculate information about the current node and the two child nodes
-                N_t = self.root.n_samples
-                impurity = self.root.criterion_total
-                N_t_R = self.root.right_branch.n_samples
-                right_impurity = self.root.right_branch.criterion_total      
-                N_t_L = self.root.left_branch.n_samples
-                left_impurity = self.root.left_branch.criterion_total
-
-                # compute impurity reduction at current node
-                cur_red = N_t / tot_samples * (impurity - N_t_R / N_t * right_impurity - N_t_L / N_t * left_impurity)
-
-            # take the value out of the list
-            if isinstance(cur_red, list):
-                cur_red = cur_red[0]
-
-            # add the weighted reductions up 
-            reduction[self.root.feature_i] += cur_red
-
-            # Recur on left child
-            self.calc_var_imp(self.root.left_branch, tot_samples, reduction)
-    
-            # Recur on right child
-            self.calc_var_imp(self.root.right_branch, tot_samples, reduction)
-    
-    def get_variable_importance(self, root, X, normalize=True):
-        """
-        Function to calculate variable importance based on weighted reduction in criterion 
-    
-        Parameters:
-        -----------
-        root: RegressionTree
-            Any regression tree 
-        X: np.
-        normalize: bool 
-            Flag to normalize output (default = True)
         
-        Output:
-        -------
-        importance: array
-            Array of arrays with weighted criterion reductions summed by feature. These are in order of the variable 
-        """
-        
-        # initialize importance/output vector
-        importance = {}
-
-        # add placeholders for all columns of X
-        for i in range(X.shape[1]):
-            importance[i] = 0
-
-        # calc the total number of samples at root 
-        tot_samples = root.n_samples
-
-        # sum up weighted reductions 
-        self.calc_var_imp(root, tot_samples, importance)
-
-        # grab the values from dictionary
-        importance2 = list(importance.values()) 
-        
-        # normalize if asked 
-        if normalize:
-            importance2 /= sum(importance2)
-        
-        # return result
-        return(importance2)
-        
-
 class Loss(object):
     """
     Defines the basic loss function for a regression tree
@@ -648,7 +562,94 @@ class GradientBoostingRegressor(GradientBoosting):
             max_depth=max_depth)
         
 
+class TreeViz():
+    """
+    Tree visulalization methods
+    """
 
+    def calc_var_imp(self, tot_samples, reduction):
+        """
+        Summary: 
+       Check Traverse a tree and sum up the weighted criterion reduction
+
+        Args: 
+            root: a DecisionTree object/tree
+            tot_samples: total number of samples at root in the training data set
+            reduction: dictionary to store the weighted criterion reductions for each feature 
+
+        Returns:
+            no explicit return but updates the reductions dictionary 
+        """
+
+        if self.root:
+
+            # calculate weighted reduction
+            if self.root.feature_i is not None:
+                
+                # calculate information about the current node and the two child nodes
+                N_t = self.root.n_samples
+                impurity = self.root.criterion_total
+                N_t_R = self.root.right_branch.n_samples
+                right_impurity = self.root.right_branch.criterion_total      
+                N_t_L = self.root.left_branch.n_samples
+                left_impurity = self.root.left_branch.criterion_total
+
+                # compute impurity reduction at current node
+                cur_red = N_t / tot_samples * (impurity - N_t_R / N_t * right_impurity - N_t_L / N_t * left_impurity)
+
+            # take the value out of the list
+            if isinstance(cur_red, list):
+                cur_red = cur_red[0]
+
+            # add the weighted reductions up 
+            reduction[self.root.feature_i] += cur_red
+
+            # Recur on left child
+            self.calc_var_imp(self.root.left_branch, tot_samples, reduction)
+    
+            # Recur on right child
+            self.calc_var_imp(self.root.right_branch, tot_samples, reduction)
+    
+    def get_variable_importance(self, root, X, normalize=True):
+        """
+        Function to calculate variable importance based on weighted reduction in criterion 
+    
+        Parameters:
+        -----------
+        root: RegressionTree
+            Any regression tree 
+        X: np.
+        normalize: bool 
+            Flag to normalize output (default = True)
+        
+        Output:
+        -------
+        importance: array
+            Array of arrays with weighted criterion reductions summed by feature. These are in order of the variable 
+        """
+        
+        # initialize importance/output vector
+        importance = {}
+
+        # add placeholders for all columns of X
+        for i in range(X.shape[1]):
+            importance[i] = 0
+
+        # calc the total number of samples at root 
+        tot_samples = root.n_samples
+
+        # sum up weighted reductions 
+        self.calc_var_imp(root, tot_samples, importance)
+
+        # grab the values from dictionary
+        importance2 = list(importance.values()) 
+        
+        # normalize if asked 
+        if normalize:
+            importance2 /= sum(importance2)
+        
+        # return result
+        return(importance2)
 
 """
 #############################################
