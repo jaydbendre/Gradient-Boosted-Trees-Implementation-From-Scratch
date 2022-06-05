@@ -607,10 +607,10 @@ class TreeViz():
             reduction[root.feature_i] += cur_red
 
             # Recur on left child
-            self.calc_var_imp(root.left_branch, tot_samples, reduction)
+            self.calc_var_imp(self, root.left_branch, tot_samples, reduction)
     
             # Recur on right child
-            self.calc_var_imp(root.right_branch, tot_samples, reduction)
+            self.calc_var_imp(self, root.right_branch, tot_samples, reduction)
     
     def get_variable_importance(self, root, X, normalize=True):
         """
@@ -642,7 +642,7 @@ class TreeViz():
         tot_samples = root.n_samples
 
         # sum up weighted reductions 
-        self.calc_var_imp(root, tot_samples, importance)
+        self.calc_var_imp(self, root=root, tot_samples=tot_samples, reduction=importance)
 
         # grab the values from dictionary
         importance2 = list(importance.values()) 
