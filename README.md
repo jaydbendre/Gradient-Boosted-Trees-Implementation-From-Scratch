@@ -1,1 +1,1 @@
-# Gradient Bossted Decision Trees from Scratch
+# Gradient Boosted Decision Trees from Scratch
